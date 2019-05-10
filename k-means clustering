@@ -1,0 +1,164 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import statistics as st
+
+k=2 # number of cluster
+print("Printing the value of k")
+print("The value of K:",k) ####### printing the value of k
+
+########################## Input data ##########################
+df = pd.DataFrame({
+    'x': [33, 24, 45, 45, 52, 51, 52, 55, 53, 55, 61, 64, 69, 72],   #assumed input
+    'y': [46, 55, 59, 63, 70, 66, 63, 58, 23, 14, 8, 19, 7, 24]      #assumed input
+})
+########################## End of Input data#####################
+
+########################## Printing Input data#####################
+print("The input data considered for this problem is:\n", df)
+#print(df)
+########################## Printing of Input data#####################
+
+
+
+
+
+########################## Start for Initial clustering and first iteration #####################
+##define initial cluster and assume it as initial iteration
+clu_1=[df.x[0],df.y[0]]
+clu_2=[df.x[1],df.y[1]]
+
+#################### Plotting the Input data with initial assumed centroids#####################
+print("###### Plotting the input data #####")
+plt.plot(df.x,df.y, 'ro', label='Input data without clustering') #########plotting the input 
+plt.plot(df.x[0], df.y[0], 'y*', label='centroid cluster 1 assumed to be 1st data point')
+plt.plot(df.x[1], df.y[1], 'm*', label='centroid cluster 2 assumed to be 2nd data point')
+plt.legend(loc='upper left')
+plt.axis([0, 100, 0, 100])
+plt.title('Plotting the input data')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.show()
+#################### End to Plotting the Input data with initial assumed centroids#####################
+
+###calculate euclidean distance
+dist_1=[]
+dist_2=[]
+clu_grp=[]
+iteration=[]
+for a in range(0,len(df.x)):
+    dist_1.append(abs(clu_1[0]-df.x[a])+abs(clu_1[1]-df.y[a]))
+    dist_2.append(abs(clu_2[0]-df.x[a])+abs(clu_2[1]-df.y[a]))
+    if dist_1[a]>dist_2[a]:
+        clu_grp.append(2)
+    else:
+        clu_grp.append(1)
+        if a==len(df.x)-1:
+            print("###### The given data points is clusters into two (k=2) #####")
+            print("###### Printing clustering after 1st Iteration #####")
+            print(clu_grp) 
+            
+point_clu_1_x=[]
+point_clu_1_y=[]
+point_clu_2_x=[]
+point_clu_2_y=[]
+old_centroid_1=clu_1
+old_centroid_2=clu_2
+old_clu_grp=clu_grp
+########################## End of Initial clustering and first iteration #####################
+
+########################## Start For more than 1 iteration ###################################
+for iteration in range(1,201):
+    old_dist_1=dist_1
+    old_dist_2=dist_2
+    
+    new_centroid_1=[]
+    new_centroid_2=[]
+    new_dist_1=[]
+    new_dist_2=[]
+    new_clu_grp=[]
+    if iteration>1:
+        ######calculating centroid of the cluster
+        for b in range(0,len(df.x)):
+            if old_clu_grp[b]==1:
+                point_clu_1_x.append(df.x[b])
+                point_clu_1_y.append(df.y[b])
+            elif old_clu_grp[b]==2:
+                point_clu_2_x.append(df.x[b])
+                point_clu_2_y.append(df.y[b])
+            if b==len(df.x)-1:
+
+                        new_centroid_1.append(st.mean(point_clu_1_x))
+                        new_centroid_1.append(st.mean(point_clu_1_y))
+                        new_centroid_2.append(st.mean(point_clu_2_x))
+                        new_centroid_2.append(st.mean(point_clu_2_y))
+                        if new_centroid_1==old_centroid_1 and new_centroid_2==old_centroid_2:
+                             break
+                             
+                        else:                ############ updating the centroid of cluster
+                            old_centroid_1=new_centroid_1
+                            old_centroid_2=new_centroid_2
+                            old_dist_1=dist_1
+                            old_dist_2=dist_2
+                            old_clu_grp=clu_grp
+                                              ############# calculating the new equalidean distance for every points from new centroid of cluster         
+                            for c in range(0,len(df.x)):
+                                new_dist_1.append(abs(old_centroid_1[0]-df.x[c])+abs(old_centroid_1[1]-df.y[c]))
+                                new_dist_2.append(abs(old_centroid_2[0]-df.x[c])+abs(old_centroid_2[1]-df.y[c]))
+                                
+                                if new_dist_1[c]>new_dist_2[c]:
+                                    new_clu_grp.append(2)
+                                else:
+                                    new_clu_grp.append(1)
+                                    if c==len(df.x)-1:
+                                        old_clu_grp=new_clu_grp
+                                        if new_centroid_1==old_centroid_1 and new_centroid_2==old_centroid_2:
+                                                 break
+
+                                            
+print("###### Printing the final cluster result for input data #####")          
+print(old_clu_grp) #######Printing the cluster 
+final_point_clu_1_x=[]
+final_point_clu_1_y=[]
+final_point_clu_2_x=[]
+final_point_clu_2_y=[]
+final_centroid_1_x=[]
+final_centroid_1_y=[]
+final_centroid_2_x=[]
+final_centroid_2_y=[]
+##########################End of - For more than 1 iteration##########################
+
+
+###### Printing and plotting Final result ######
+for d in range(0,len(df.x)):   ###### seperating the data as per updated cluster
+        if old_clu_grp[d]==1:
+            final_point_clu_1_x.append(df.x[d])
+            final_point_clu_1_y.append(df.y[d])
+            final_centroid_1_x.append(new_centroid_1[0])
+            final_centroid_1_y.append(new_centroid_1[1])
+        elif old_clu_grp[d]==2:
+            final_point_clu_2_x.append(df.x[d])
+            final_point_clu_2_y.append(df.y[d])
+            final_centroid_2_x.append(new_centroid_2[0])
+            final_centroid_2_y.append(new_centroid_2[1])
+        if d==len(df.x)-1:             ##### Final result plot of cluster
+            print("###### Plotting the final resultant cluster of input data #####")
+            plt.plot(final_point_clu_1_x, final_point_clu_1_y, 'gs', label='cluster 1 points')
+            plt.plot(final_point_clu_2_x, final_point_clu_2_y, 'bx', label='cluster 2 points')
+            plt.plot(final_centroid_1_x, final_centroid_1_y, 'y*', label='centroid cluster 1')
+            plt.plot(final_centroid_2_x, final_centroid_2_y, 'm*', label='centroid cluster 2')
+            plt.legend(loc='upper left')
+            plt.axis([0, 100, 0, 100])
+            plt.title('Plotting the final resulting cluster of data')
+            plt.xlabel('x')
+            plt.ylabel('y')
+            plt.show()
+            print("###### Printing centroid of cluster 1 after clustering ######")
+            print(new_centroid_1)
+            print("###### Printing centroid of cluster 1 after clustering ######")
+            print(new_centroid_2)
+    
+
+
+
+
+
